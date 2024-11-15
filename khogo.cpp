@@ -1,83 +1,75 @@
 #include <iostream>
+#include <vector>
 #include <string>
 
 using namespace std;
 
+// Dinh nghia cau truc cho thanh go
 struct Wood {
-    string type;  
-    int size;     
-    int age;      
-    Wood *next;   
+    string type;  // Loai go
+    int size;     // Kich thuoc
+    int age;      // Tuoi
 };
 
-// Dinh nghia kho go theo kieu stack
+// Class quan ly kho thanh go
 class KhoGo {
 private:
-    Wood *top;  // Con tro den thanh go tren cung cua stack
+    vector<Wood> stack;  // Su dung vector de lam kho stack
 
 public:
-    KhoGo() {
-        top = nullptr;
-    }
-
-    // Kiem tra kho rong
+    // Ham kiem tra kho co rong hay khong
     bool isEmpty() const {
-        return top == nullptr;
+        return stack.empty();
     }
 
-    // Ham them mot thanh go vao kho 
-    void push(const string &type, int size, int age) {
-        Wood *newWood = new Wood{type, size, age, top};
-        top = newWood;
+    // Ham them thanh go vao kho
+    void addWood(const string &type, int size, int age) {
+        stack.push_back({type, size, age});
     }
 
-    // Ham lay mot thanh go ra khoi kho 
-    void pop() {
+    // Ham lay thanh go ra khoi kho
+    void removeWood() {
         if (isEmpty()) {
-            cout << "Kho rong, khong the lay ra!" << endl;
+            cout << "Kho rong, khong co thanh go nao de lay!" << endl;
             return;
         }
-        Wood *temp = top;
-        top = top->next;
-        delete temp;
+        stack.pop_back();
     }
 
-    // Ham hien thi cac thanh go trong kho
+    // Ham hien thi danh sach go trong kho
     void display() const {
         if (isEmpty()) {
-            cout << "Kho rong." << endl;
+            cout << "Kho hien tai khong co thanh go nao." << endl;
             return;
         }
-        Wood *current = top;
-        cout << "Danh sach cac thanh go hien co trong kho:" << endl;
-        int index = 1;
-        while (current != nullptr) {
-            cout << "Thanh go " << index << ": [Loai: " << current->type 
-                 << ", Kich thuoc: " << current->size 
-                 << ", Tuoi: " << current->age << "]" << endl;
-            current = current->next;
-            index++;
+        cout << "Danh sach thanh go trong kho:" << endl;
+        for (int i = stack.size() - 1; i >= 0; i--) {
+            cout << "- Loai: " << stack[i].type 
+                 << ", Kich thuoc: " << stack[i].size 
+                 << ", Tuoi: " << stack[i].age << endl;
         }
     }
 
-    // Ham dem so luong thanh go co cung tuoi go
-    int demtuoi(int age) const {
+    // Ham dem so luong thanh go theo tuoi
+    int countByAge(int age) const {
         int count = 0;
-        Wood *current = top;
-        while (current != nullptr) {
-            if (current->age == age) {
+        for (const auto &wood : stack) {
+            if (wood.age == age) {
                 count++;
             }
-            current = current->next;
         }
         return count;
     }
 
-    // Destructor de giai phong bo nho
-    ~KhoGo() {
-        while (!isEmpty()) {
-            pop();
+    // Ham tim danh sach thanh go theo tuoi
+    vector<Wood> findByAge(int age) const {
+        vector<Wood> result;
+        for (const auto &wood : stack) {
+            if (wood.age == age) {
+                result.push_back(wood);
+            }
         }
+        return result;
     }
 };
 
@@ -85,23 +77,33 @@ int main() {
     KhoGo kho;
 
     // Them cac thanh go vao kho
-    kho.push("Do", 5, 10);
-    kho.push("Xoan", 3, 7);
-    kho.push("Tau", 8, 10);
+    kho.addWood("Do", 5, 10);
+    kho.addWood("Xoan", 3, 7);
+    kho.addWood("Lim", 8, 10);
 
-    // Hien thi danh sach go trong kho
+    // Hien thi danh sach thanh go
     kho.display();
 
     // Dem so luong thanh go co tuoi la 7
     int tuoiCanDem = 7;
-    int soLuong = kho.demtuoi(tuoiCanDem);
+    int soLuong = kho.countByAge(tuoiCanDem);
     cout << "So luong thanh go co tuoi " << tuoiCanDem << " la: " << soLuong << endl;
 
-    // Lay mot thanh go ra khoi kho
-    kho.pop();
+    // Lay thanh go ra kho
+    kho.removeWood();
 
-    // Hien thi danh sach go sau khi lay ra
+    // Hien thi danh sach thanh go sau khi lay
     kho.display();
+
+    // Tim thanh go co tuoi 10
+    int tuoiCanTim = 10;
+    vector<Wood> ketQua = kho.findByAge(tuoiCanTim);
+    cout << "Danh sach thanh go co tuoi " << tuoiCanTim << ":" << endl;
+    for (const auto &wood : ketQua) {
+        cout << "- Loai: " << wood.type 
+             << ", Kich thuoc: " << wood.size 
+             << ", Tuoi: " << wood.age << endl;
+    }
 
     return 0;
 }
